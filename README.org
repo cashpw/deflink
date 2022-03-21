@@ -1,0 +1,3 @@
+#+TITLE: org-link-base
+
+Provides common utility functions for creating org-mode links.
