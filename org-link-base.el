@@ -173,7 +173,7 @@
    (org-link-base--link-prefix prefix)
    link))
 
-(defun org-link-base--call-when-link-matches (fn link-type link)
+(defun org-link-base-call-when-link-matches (fn link-type link)
   "Invokes the provided FN when LINK is of type LINK-TYPE.
 
 Useful for implementing `org-link-make-description'."
@@ -183,7 +183,7 @@ Useful for implementing `org-link-make-description'."
     (let ((path
            (s-chop-suffix
             "/"
-            (org-link-base--get-link-path))))
+            (org-link-base--get-link-path link link-type))))
       (funcall fn path))))
 
 (provide 'org-link-base)
