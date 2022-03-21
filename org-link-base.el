@@ -177,16 +177,14 @@
   "Invokes the provided FN when LINK is of type LINK-TYPE.
 
 Useful for implementing `org-link-make-description'."
-  (lexical-let ((link link)
-                (description description))
-    (when (string-prefix-p
-           (org-link-base--link-prefix link-type)
-           link)
-      (let ((path
-             (s-chop-suffix
-              "/"
-              (org-link-base--get-link-path))))
-        (funcall fn path)))))
+  (when (string-prefix-p
+         (org-link-base--link-prefix link-type)
+         link)
+    (let ((path
+           (s-chop-suffix
+            "/"
+            (org-link-base--get-link-path))))
+      (funcall fn path))))
 
 (provide 'org-link-base)
 ;;; org-link-base.el ends here
