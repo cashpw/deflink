@@ -164,27 +164,40 @@
    prefix
    ":"))
 
-(defun org-link-base--get-link-path (link prefix)
-  "Return the PREFIX component of the provided LINK.
+(defun org-link-base-link-is-type-p (link link-type)
+  "Return t if LINK is prefixed with LINK-TYPE, else nil."
+  (string-prefix-p
+   (org-link-base--link-prefix
+    link-type)
+   link))
 
-(org-link-base--get-link-path \"foo:bar\" \"foo\")
-=> \"bar\""
-  (string-remove-prefix
-   (org-link-base--link-prefix prefix)
+(defun org-link-base-call-with-path (fn link)
+  "Call FN with the path component of LINK."
+  (let ((link
+         (s-chop-suffix
+          "/"
+          link))
+        (path
+         (org-link-base--get-link-path link)))
+    (funcall fn path)))
+
+(defun org-link-base--get-link-path (link)
+  "Return path component of LINK."
+  (replace-regexp-in-string
+   "^.*?:"
+   ""
    link))
 
 (defun org-link-base-call-when-link-matches (fn link-type link)
   "Return the return value of FN when LINK is of type LINK-TYPE, else nil.
 
 Useful for implementing `org-link-make-description'."
-  (when (string-prefix-p
-         (org-link-base--link-prefix link-type)
-         link)
-    (let ((path
-           (s-chop-suffix
-            "/"
-            (org-link-base--get-link-path link link-type))))
-      (funcall fn path)))
+  (when (org-link-base-link-is-type-p
+         link
+         link-type)
+    (org-link-base-call-with-path
+     fn
+     link))
   nil)
 
 (provide 'org-link-base)
