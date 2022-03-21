@@ -174,7 +174,7 @@
    link))
 
 (defun org-link-base-call-when-link-matches (fn link-type link)
-  "Invokes the provided FN when LINK is of type LINK-TYPE.
+  "Return the return value of FN when LINK is of type LINK-TYPE, else nil.
 
 Useful for implementing `org-link-make-description'."
   (when (string-prefix-p
@@ -184,7 +184,8 @@ Useful for implementing `org-link-make-description'."
            (s-chop-suffix
             "/"
             (org-link-base--get-link-path link link-type))))
-      (funcall fn path))))
+      (funcall fn path)))
+  nil)
 
 (provide 'org-link-base)
 ;;; org-link-base.el ends here
