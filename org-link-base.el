@@ -121,44 +121,42 @@
   "Return a function to open the provided link in the format expected by `org-link-set-parameters''s `:export'.
 
 - BASE-URL: The part of the URL not included in the path."
-  (lexical-let ((base-url base-url))
-    (lambda (path desc backend info)
-      "Export an base link.
+  (lambda (path desc backend info)
+    "Export an base link.
 
 - PATH: the name.
 - DESC: the description of the link, or nil.
 - BACKEND: a symbol representing the backend used for export.
 - INFO: a plist containing the export parameters."
-      (let ((uri
-             (org-link-base--build-uri
-              base-url
-              path)))
-        (pcase backend
-          (`md
-           (org-link-base--export-markdown uri desc info))
-          (`html
-           (org-link-base--export-html uri desc info))
-          (`latex
-           (org-link-base--export-latex uri desc info))
-          (`ascii
-           (org-link-base--export-ascii uri desc info))
-          (`texinfo
-           (org-link-base--export-texinfo uri desc info))
-          (_ uri))))))
+    (let ((uri
+           (org-link-base--build-uri
+            base-url
+            path)))
+      (pcase backend
+        (`md
+         (org-link-base--export-markdown uri desc info))
+        (`html
+         (org-link-base--export-html uri desc info))
+        (`latex
+         (org-link-base--export-latex uri desc info))
+        (`ascii
+         (org-link-base--export-ascii uri desc info))
+        (`texinfo
+         (org-link-base--export-texinfo uri desc info))
+        (_ uri)))))
 
 (defun org-link-base-open-fn-builder (base-url)
   "Return a function to open the provided link in the format expected by `org-link-set-parameters''s `:follow'.
 
 - BASE-URL: The part of the URL not included in the path."
-  (lexical-let ((base-url base-url))
-    (lambda (path arg)
-      (let ((uri
-             (org-link-base--build-uri
-              base-url
-              path)))
-        (browse-url
-         uri
-         arg)))))
+  (lambda (path arg)
+    (let ((uri
+           (org-link-base--build-uri
+            base-url
+            path)))
+      (browse-url
+       uri
+       arg))))
 
 (defun org-link-base--link-prefix (prefix)
   "Return a link PREFIX."
