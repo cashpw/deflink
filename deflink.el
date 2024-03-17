@@ -1,14 +1,14 @@
-;;; org-link-base.el --- Description -*- lexical-binding: t; -*-
+;;; deflink.el --- Description -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2022 Cash Weaver
 ;;
 ;; Author: Cash Weaver <cashbweaver@gmail.com>
 ;; Maintainer: Cash Weaver <cashbweaver@gmail.com>
 ;; Created: March 13, 2022
-;; Modified: March 13, 2022
-;; Version: 0.0.1
-;; Homepage: https://github.com/cashweaver/org-link-base
-;; Package-Requires: ((emacs "27.1"))
+;; Modified: March 17, 2024
+;; Version: 0.0.2
+;; Homepage: https://github.com/cashweaver/deflink
+;; Package-Requires: ((emacs "27.1") (s "1.13.1"))
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -21,7 +21,7 @@
 (require 'ol)
 (require 's)
 
-(defun org-link-base--export-markdown (path description info)
+(defun deflink--export-markdown (path description info)
   "Format the link for exporting to markdown.
 
 - PATH: The uri/etc.
@@ -31,13 +31,10 @@
          (or
           description
           path)))
-    (s-format
-     "[${description}](${path})"
-     'aget
-     `(("description" . ,description)
-       ("path" . ,path)))))
+    (s-lex-format
+     "[${description}](${path})")))
 
-(defun org-link-base--export-html (path description info)
+(defun deflink--export-html (path description info)
   "Format the link for exporting to html.
 
 - PATH: The uri/etc.
@@ -47,30 +44,22 @@
          (or
           description
           path)))
-    (s-format
-     "<a href=\"${path}\">${description}</a>"
-     'aget
-     `(("description" . ,description)
-       ("path" . ,path)))))
+    (s-lex-format
+     "<a href=\"${path}\">${description}</a>")))
 
-(defun org-link-base--export-latex (path description info)
+(defun deflink--export-latex (path description info)
   "Format the link for exporting to latex.
 
 - PATH: The uri/etc.
 - DESCRIPTION: The reader-facing description.
 - INFO: a plist containing the export parameters."
   (if description
-      (s-format
-       "\\href{${path}}{${description}}"
-       'aget
-       `(("description" . ,description)
-         ("path" . ,path)))
-    (s-format
-     "\\url{${path}}"
-     'aget
-     `(("path" . ,path)))))
+      (s-lex-format
+       "\\href{${path}}{${description}}")
+    (s-lex-format
+     "\\url{${path}}")))
 
-(defun org-link-base--export-ascii (path description info)
+(defun deflink--export-ascii (path description info)
   "Format the link for exporting to ascii.
 
 - PATH: The uri/etc.
@@ -91,33 +80,26 @@
      "<%s>"
      path)))
 
-(defun org-link-base--export-texinfo (path description info)
+(defun deflink--export-texinfo (path description info)
   "Format the link for exporting to texinfo.
 
 - PATH: The uri/etc.
 - DESCRIPTION: The reader-facing description.
 - INFO: a plist containing the export parameters."
   (if description
-      (s-format
-       "@uref{${path}, ${description}}"
-       'aget
-       `(("description" . ,description)
-         ("path" . ,path)))
-    (s-format
-     "@uref{${path}}"
-     'aget
-     `(("path" . ,path)))))
+      (s-lex-format
+       "@uref{${path}, ${description}}")
+    (s-lex-format
+     "@uref{${path}}")))
 
-(defun org-link-base--build-uri (base-url path)
-  "Return a uri for the provided PATH and BASE-URL."
+(defun deflink--build-uri (uri target)
+  "Return URI formatted with TARGET.
+
+URI should be a string with a single '%s'."
   (url-encode-url
-   (s-format
-    "${base-url}/${path}"
-    'aget
-    `(("base-url" . ,base-url)
-      ("path" . ,path)))))
+   (format uri target)))
 
-(defun org-link-base-export-fn-builder (base-url)
+(defun deflink-export-fn-builder (base-url)
   "Return a function to open the provided link in the format expected by `org-link-set-parameters''s `:export'.
 
 - BASE-URL: The part of the URL not included in the path."
@@ -129,76 +111,83 @@
 - BACKEND: a symbol representing the backend used for export.
 - INFO: a plist containing the export parameters."
     (let ((uri
-           (org-link-base--build-uri
+           (deflink--build-uri
             base-url
             path)))
       (pcase backend
         (`md
-         (org-link-base--export-markdown uri desc info))
+         (deflink--export-markdown uri desc info))
         (`html
-         (org-link-base--export-html uri desc info))
+         (deflink--export-html uri desc info))
         (`latex
-         (org-link-base--export-latex uri desc info))
+         (deflink--export-latex uri desc info))
         (`ascii
-         (org-link-base--export-ascii uri desc info))
+         (deflink--export-ascii uri desc info))
         (`texinfo
-         (org-link-base--export-texinfo uri desc info))
+         (deflink--export-texinfo uri desc info))
         (_ uri)))))
 
-(defun org-link-base-open-fn-builder (base-url)
+(defun deflink-open-fn-builder (base-url)
   "Return a function to open the provided link in the format expected by `org-link-set-parameters''s `:follow'.
 
 - BASE-URL: The part of the URL not included in the path."
   (lambda (path arg)
     (let ((uri
-           (org-link-base--build-uri
+           (deflink--build-uri
             base-url
             path)))
       (browse-url
        uri
        arg))))
 
-(defun org-link-base--link-prefix (prefix)
+(defun deflink--link-prefix (prefix)
   "Return a link PREFIX."
   (concat
    prefix
    ":"))
 
-(defun org-link-base-link-is-type-p (link link-type)
+(defun deflink-link-is-type-p (link link-type)
   "Return t if LINK is prefixed with LINK-TYPE, else nil."
   (string-prefix-p
-   (org-link-base--link-prefix
+   (deflink--link-prefix
     link-type)
    link))
 
-(defun org-link-base-call-with-path (fn link)
+(defun deflink-call-with-path (fn link)
   "Call FN with the path component of LINK."
   (let ((link
          (s-chop-suffix
           "/"
           link))
         (path
-         (org-link-base--get-link-path link)))
+         (deflink--get-link-path link)))
     (funcall fn path)))
 
-(defun org-link-base--get-link-path (link)
+(defun deflink--get-link-path (link)
   "Return path component of LINK."
   (replace-regexp-in-string
    "^.*?:"
    ""
    link))
 
-(defun org-link-base-call-when-link-matches (fn link-type link)
+(defun deflink-call-when-link-matches (fn link-type link)
   "Return the return value of FN when LINK is of type LINK-TYPE, else nil.
 
 Useful for implementing `org-link-make-description'."
-  (when (org-link-base-link-is-type-p
+  (when (deflink-link-is-type-p
          link
          link-type)
-    (org-link-base-call-with-path
+    (deflink-call-with-path
      fn
      link))
   nil)
 
-(provide 'org-link-base)
-;;; org-link-base.el ends here
+(defmacro deflink (type url)
+  "Define a named http TYPE link which expands to URL."
+  `(org-link-set-parameters
+    ,type
+    :follow (deflink-open-fn-builder ,url)
+    :export (deflink-export-fn-builder ,url)))
+
+(provide 'deflink)
+;;; deflink.el ends here

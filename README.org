@@ -1,3 +1,11 @@
-#+TITLE: org-link-base
+#+TITLE: deflink
 
-Provides common utility functions for creating org-mode links.
+Provides macro to define simple named HTTP link in Emacs org-mode.
+
+* Usage
+
+#+begin_src emacs-lisp
+(deflink
+ "sheets"
+ "https://docs.google.com/spreadsheets/d/%s")
+#+end_src
