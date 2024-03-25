@@ -4,8 +4,16 @@ Provides macro to define simple named HTTP link in Emacs org-mode.
 
 * Usage
 
-#+begin_src emacs-lisp
+1. Define a link:
+
+   #+begin_src emacs-lisp
 (deflink
  "sheets"
  "https://docs.google.com/spreadsheets/d/%s")
-#+end_src
+   #+end_src
+
+2. Use the link!
+
+   #+begin_src org
+[[sheets:1234asdf][My favorite spreadsheet]]
+   #+end_src
