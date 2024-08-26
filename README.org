@@ -1,11 +1,11 @@
 :PROPERTIES:
-:LAST_MODIFIED: [2024-08-26 Mon 07:31]
+:LAST_MODIFIED: [2024-08-26 Mon 07:33]
 :END:
 #+TITLE: deflink
 
 =deflink= is a macro which helps you define custom HTTP links in Emacs org-mode.
 
-* Example: Instagram
+* Usage
 
 #+begin_src emacs-lisp
 (deflink
