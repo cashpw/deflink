@@ -150,7 +150,7 @@ accepts three arguments: (1) the link (for example: \"bar\" in the link
     ,type
     :follow (deflink--open-fn-builder ,url)
     :insert-description
-    (when insert-description
+    (when ,insert-description
       (deflink--insert-description-fn-builder ,insert-description))
     :export (deflink--export-fn-builder ,url)))
 
