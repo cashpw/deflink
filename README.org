@@ -1,11 +1,21 @@
+:PROPERTIES:
+:LAST_MODIFIED: [2024-08-26 Mon 07:31]
+:END:
 #+TITLE: deflink
 
-Provides macro to define simple named HTTP link in Emacs org-mode.
+=deflink= is a macro which helps you define custom HTTP links in Emacs org-mode.
 
-* Usage
+* Example: Instagram
 
 #+begin_src emacs-lisp
 (deflink
- "sheets"
- "https://docs.google.com/spreadsheets/d/%s")
+ ;; Type
+ "instagram"
+ ;; URL pattern with '%s' for replacement
+ "https://instagram.com/%s"
+ ;; Description function to populate default description
+ (lambda (link _)
+   (concat "@" link)))
 #+end_src
+
+The above configuration defines an =instagram= link. For example: =[[instagram:foo][@foo]]= will open =http://instagram.com/foo= and export as expected in Markdown, HTML, Latex, Texinfo and more.
